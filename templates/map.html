@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo - pandas + flask + leaflet-heat</title>
+    <link rel="stylesheet" href="./static/lib/js/leaflet/leaflet.css" />
+    <style>
+        body, html { margin:0; padding:0; height:100%;}
+        body { font-family:sans-serif; }
+        body * { font-weight:200;}
+        h1 { position:absolute; background:white; padding:10px;}
+        #map { height:100%; }
+        .leaflet-container {
+            background: rgba(0,0,0,.8) !important;
+        }
+        h1 { position:absolute; background:black; color:white; padding:10px; font-weight:200; z-index:10000;}
+        #all-examples-info { position:absolute; background:white; font-size:16px; padding:20px; top:100px; width:350px; line-height:150%; border:1px solid rgba(0,0,0,.2);}
+    </style>
+    <script>
+        window.onload = function() {
+
+            var data = {{ data | tojson }};
+
+            var baseLayer = L.tileLayer(
+                'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+                    maxZoom: 18
+                }
+            );
+
+            var cfg = {
+                // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+                // if scaleRadius is false it will be the constant radius used in pixels
+                "radius": 20,
+                "maxOpacity": .8,
+                // scales the radius based on map zoom
+                "scaleRadius": false,
+                // if set to false the heatmap uses the global maximum for colorization
+                // if activated: uses the data maximum within the current map boundaries
+                //   (there will always be a red spot with useLocalExtremas true)
+                "useLocalExtrema": false,
+                // which field name in your data represents the latitude - default "lat"
+                latField: 'latitude',
+                // which field name in your data represents the longitude - default "lng"
+                lngField: 'longitude',
+                // which field name in your data represents the data value - default "value"
+                valueField: 'reading'
+            };
+
+
+            var heatmapLayer = new HeatmapOverlay(cfg);
+
+            var map = new L.Map('map', {
+                center: new L.LatLng(54.57206, -5.80078),
+                zoom: 6,
+                layers: [baseLayer, heatmapLayer]
+            });
+
+            heatmapLayer.setData(data);
+        }
+    </script>
+</head>
+<body>
+<!--<div id="map" style="width: 400px; height: 380px"></div>-->
+
+{{ data.max }}
+
+<div id="map"></div>
+
+
+<script src="./static/lib/js/leaflet/leaflet.js"></script>
+<script src="./static/lib/js/heatmap/build/heatmap.js"></script>
+<script src="./static/lib/js/heatmap/plugins/leaflet-heatmap/leaflet-heatmap.js"></script>
+
+</body>
+</html>
